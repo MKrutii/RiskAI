@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,27 +26,48 @@ ChartJS.register(
   Legend,
 )
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-    },
-    title: {
-      display: false,
-    },
-  },
-}
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December']
+const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 export default function ChartComponent() {
   const { activeAsset, activeYearData } = useAssetData()
-  const color = faker.color.rgb()
+
+  const footer = (tooltipItems: Array<any>) => {
+    const [current] = tooltipItems
+    const currentData = current.dataset.filteredData[current.dataIndex]
+
+    return `
+      Business Category: ${currentData['Business Category']}\n
+      Risk Rating: ${currentData['Risk Rating']}\n
+      ${Object.entries(currentData['Risk Factors'])
+    .map(([label, val]) => `${label}: ${Number(val).toFixed(2)}`)
+    .join('\n')}
+      Year: ${currentData.Year}
+    `
+  }
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          footer,
+        },
+      },
+    },
+  }
+  const color = useMemo(() => faker.color.rgb(), [])
+  const filteredData = activeYearData.filter(a => a['Asset Name'] === activeAsset)
   const selectedDataset = [
     {
       label: activeAsset,
-      data: activeYearData.filter(a => a['Asset Name'] === activeAsset).map(e => e['Risk Rating']),
+      filteredData,
+      data: filteredData.map(e => e['Risk Rating']),
       borderColor: color,
       backgroundColor: color,
     },
