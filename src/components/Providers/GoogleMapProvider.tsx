@@ -15,7 +15,7 @@ interface GoogleMapsProviderValue {
 export default function GoogleMapsProvider({ children }: GoogleMapsProviderProps) {
   const { isLoaded } = useJsApiLoader({
     id: 'map',
-    googleMapsApiKey: process.env.MAPS_KEY || '',
+    googleMapsApiKey: process.env.GOOGLE_MAPS_KEY || '',
   })
 
   const providerValue: GoogleMapsProviderValue = useMemo(() => ({
